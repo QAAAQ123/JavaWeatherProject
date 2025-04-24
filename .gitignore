@@ -1,0 +1,5 @@
+# Default ignored files
+/.idea/shelf/
+/.idea/workspace.xml
+/src/application.properties
+/out/production/JavaWeatherProject/src/application.properties
