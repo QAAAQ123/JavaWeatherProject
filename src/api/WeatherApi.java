@@ -13,13 +13,19 @@ import java.util.Properties;
 
 public class WeatherApi {
     private String key;
-    public URL requestAllDistrictName() throws MalformedURLException, UnsupportedEncodingException { //전체 지역명 받아오기
+    public URL requestAllDistrictName() throws MalformedURLException { //전체 지역명 받아오기
         StringBuilder urlBuilder = new StringBuilder("http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst"); /*URL*/
-        urlBuilder.append("?" + URLEncoder.encode(readAPIKey(),"UTF-8") + "=서비스키"); /*Service Key*/
-        urlBuilder.append("&" + URLEncoder.encode("pageNo","UTF-8") + "=" + URLEncoder.encode("1", "UTF-8")); /*페이지번호*/
-        urlBuilder.append("&" + URLEncoder.encode("numOfRows","UTF-8") + "=" + URLEncoder.encode("1000", "UTF-8")); /*한 페이지 결과 수*/
-        urlBuilder.append("&" + URLEncoder.encode("dataType","UTF-8") + "=" + URLEncoder.encode("XML", "UTF-8")); /*요청자료형식(XML/JSON) Default: XML*/
 
+        urlBuilder.append("?" + "serviceKey" + "=" + readAPIKey()); /*Service Key*/
+        urlBuilder.append("&" + "service" + "=" + "1"); /*페이지번호*/
+        urlBuilder.append("&" + "numOfRows" + "=" + "1000"); /*한 페이지 결과 수*/
+        urlBuilder.append("&" + "dataType" + "=" + "JSON"); /*요청자료형식(XML/JSON) Default: XML*/
+        urlBuilder.append("&" + "base_date" + "=" + "20250425"); /*‘21년 6월 28일 발표*/
+        urlBuilder.append("&" + "base_time" + "=" + "0600"); /*06시 발표(정시단위) */
+        urlBuilder.append("&" + "nx" + "=" + "55"); /*예보지점의 X 좌표값*/
+        urlBuilder.append("&" + "ny" + "=" + "127"); /*예보지점의 Y 좌표값*/
+
+        System.out.println("Request URL: " + new URL(urlBuilder.toString())); // 디버그용 출력
         return new URL(urlBuilder.toString());
     }
 

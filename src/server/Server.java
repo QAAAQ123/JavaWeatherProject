@@ -10,6 +10,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.URL;
+import java.util.List;
 
 public class Server {
     public void run() throws IOException{
@@ -18,31 +19,16 @@ public class Server {
 
         httpServer.createContext("/",(exchange -> {
             String clienRequestHttpMethod = exchange.getRequestMethod();
-            System.out.println("request method: "+clienRequestHttpMethod + "\n");
+            String path = exchange.getRequestURI().getPath();
+            System.out.println("request method:"+clienRequestHttpMethod + " Path:" + path);
 
-            WeatherApi weatherApi = new WeatherApi();
-            URL url = weatherApi.requestAllDistrictName();
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
-            connection.setRequestProperty("Content-type","application/json");
-            BufferedReader bufferedReader;
-            if (connection.getResponseCode() >= 200 && connection.getResponseCode() <= 300) {
-                bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            }else {
-                bufferedReader = new BufferedReader(new InputStreamReader(connection.getErrorStream()));
-            }
-            StringBuilder resultBuilder = new StringBuilder();
-            String line;
-            while((line = bufferedReader.readLine()) != null) resultBuilder.append(line);
-            String result = resultBuilder.toString();
-
-            exchange.sendResponseHeaders(200,result.length());
+            CoordinateToRegionMapper coordinateToRegionMapper = new CoordinateToRegionMapper();
+            List<String> result = coordinateToRegionMapper.getRegionList();
+            exchange.sendResponseHeaders();//보낼 데이터 길이를 넣어야함
             try(OutputStream os = exchange.getResponseBody()){
-                os.write(result.getBytes());
+                os.write(); //byte[] or int로 데이터를 보내야함(주로 JSON으로 보냄)
             }
 
-            bufferedReader.close();
-            connection.disconnect();
 
         }));
 
