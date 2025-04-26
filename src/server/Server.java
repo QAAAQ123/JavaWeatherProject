@@ -1,5 +1,6 @@
 package src.server;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpServer;
 import src.api.WeatherApi;
 
@@ -24,11 +25,15 @@ public class Server {
 
             CoordinateToRegionMapper coordinateToRegionMapper = new CoordinateToRegionMapper();
             List<String> result = coordinateToRegionMapper.getRegionList();
-            exchange.sendResponseHeaders();//보낼 데이터 길이를 넣어야함
-            try(OutputStream os = exchange.getResponseBody()){
-                os.write(); //byte[] or int로 데이터를 보내야함(주로 JSON으로 보냄)
-            }
 
+            ObjectMapper objectMapper = new ObjectMapper();
+            String JSON = objectMapper.writeValueAsString(result);
+
+            exchange.getResponseHeaders().set("Content-Type","application/json");
+            exchange.sendResponseHeaders(200,JSON.getBytes().length);//보낼 데이터 길이를 넣어야함
+            try(OutputStream os = exchange.getResponseBody()){
+                os.write(JSON.getBytes());
+            }
 
         }));
 

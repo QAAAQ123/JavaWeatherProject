@@ -1,8 +1,7 @@
 package src;
 
-import src.server.CoordinateToRegionMapper;
 import src.server.Server;
-import src.server.TempServer;
+
 import java.io.IOException;
 
 /*
@@ -19,13 +18,13 @@ import java.io.IOException;
  */
 public class WeatherProject {
     public static void main(String[] args) {
-//        Server Server = new Server();
-//        try{
-//            Server.run();
-//        }catch(IOException e){
-//            e.printStackTrace();
-//        }
-        CoordinateToRegionMapper t = new CoordinateToRegionMapper();
+        Server Server = new Server();
+        try{
+            Server.run();
+        }catch(IOException e){
+            e.printStackTrace();
+        }
+//        CoordinateToRegionMapper t = new CoordinateToRegionMapper();
         //t.readCSV();
 //        System.out.println(t.getRegionList());
 //        System.out.println(t.getCoordinateList());
