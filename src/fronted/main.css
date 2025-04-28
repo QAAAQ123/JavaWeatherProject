@@ -1,6 +1,6 @@
-.level1,
-.level2,
-.level3{
+#HTMLLevel1,
+#HTMLLevel2,
+#HTMLLevel3{
     color: blue;
     float:left;
     margin: 3px;
@@ -8,6 +8,8 @@
 .title{
     color: green;
 }
-.submit_btn{
+#btn{
     margin: 3px;
+    width: 80px;
+    height: 25px;
 }
