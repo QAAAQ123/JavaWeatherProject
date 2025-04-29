@@ -1,11 +1,9 @@
 package src;
 
-import src.server.CoordinateToRegionMapper;
+
 import src.server.Server;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 /*
 1. 서버 만들기
@@ -28,7 +26,6 @@ public class WeatherProject {
             e.printStackTrace();
 
         }
-
     }
 }
 

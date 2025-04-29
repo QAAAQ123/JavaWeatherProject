@@ -2,31 +2,50 @@ package src.api;
 
 import com.sun.tools.javac.Main;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.Properties;
 
 public class WeatherApi {
     private String key;
-    public URL requestAllDistrictName() throws MalformedURLException { //전체 지역명 받아오기
+    public URL requestToAPI(String date, String time, String nx, String ny) throws MalformedURLException { //전체 지역명 받아오기
+        System.out.println("api가 받을 정보:"+date+"/"+time+"/"+nx+"/"+ny);
         StringBuilder urlBuilder = new StringBuilder("http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst"); /*URL*/
-
         urlBuilder.append("?" + "serviceKey" + "=" + readAPIKey()); /*Service Key*/
         urlBuilder.append("&" + "service" + "=" + "1"); /*페이지번호*/
-        urlBuilder.append("&" + "numOfRows" + "=" + "1000"); /*한 페이지 결과 수*/
+        urlBuilder.append("&" + "numOfRows" + "=" + "100"); /*한 페이지 결과 수*/
         urlBuilder.append("&" + "dataType" + "=" + "JSON"); /*요청자료형식(XML/JSON) Default: XML*/
-        urlBuilder.append("&" + "base_date" + "=" + "20250425"); /*‘21년 6월 28일 발표*/
-        urlBuilder.append("&" + "base_time" + "=" + "0600"); /*06시 발표(정시단위) */
-        urlBuilder.append("&" + "nx" + "=" + "55"); /*예보지점의 X 좌표값*/
-        urlBuilder.append("&" + "ny" + "=" + "127"); /*예보지점의 Y 좌표값*/
+        urlBuilder.append("&" + "base_date" + "=" + date); /*‘21년 6월 28일 발표*/
+        urlBuilder.append("&" + "base_time" + "=" + time); /*06시 발표(정시단위) */
+        urlBuilder.append("&" + "nx" + "=" + nx); /*예보지점의 X 좌표값*/
+        urlBuilder.append("&" + "ny" + "=" + ny); /*예보지점의 Y 좌표값*/
 
-        System.out.println("Request URL: " + new URL(urlBuilder.toString())); // 디버그용 출력
+        //System.out.println("Request URL: " + new URL(urlBuilder.toString())); // 디버그용 출력
         return new URL(urlBuilder.toString());
+    }
+
+    public String responseFromAPI(URL url) throws IOException {
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        conn.setRequestProperty("Content-type", "application/json");
+        System.out.println("Response code: " + conn.getResponseCode());
+        BufferedReader rd;
+        if(conn.getResponseCode() >= 200 && conn.getResponseCode() <= 300) {
+            rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+        } else {
+            rd = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
+        }
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = rd.readLine()) != null) {
+            sb.append(line);
+        }
+        rd.close();
+        conn.disconnect();
+        return sb.toString();
     }
 
     private String readAPIKey(){

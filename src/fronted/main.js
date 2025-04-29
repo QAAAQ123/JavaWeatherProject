@@ -1,19 +1,20 @@
 let level1 = new Set();
 let level2 = new Set();
 let level3 = new Array();
+
 window.addEventListener("DOMContentLoaded", () => {
     fetch("http://localhost:8000/data")
         .then((response) => {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            console.log("데이터 요청 응답 완료")
+            console.log("데이터 요청 응답 완료");
             return response.json();
         })
         .then((data) => {
-            for(let i = 3; i < data.length; i+=3) level1.add(data[i]);
-            for(let i = 4; i < data.length; i+=3) level2.add(data[i]);
-            for(let i = 5; i < data.length; i+=3) level3.push(data[i]);
+            for (let i = 3; i < data.length; i += 3) level1.add(data[i]);
+            for (let i = 4; i < data.length; i += 3) level2.add(data[i]);
+            for (let i = 5; i < data.length; i += 3) level3.push(data[i]);
 
             const HTMLLevel1 = document.getElementById('HTMLLevel1');
             level1.forEach(item => {
@@ -38,7 +39,7 @@ window.addEventListener("DOMContentLoaded", () => {
                 option.textContent = item;
                 HTMLLevel3.appendChild(option);
             });
-            console.log("데이터 select에 넣기 완료")
+            console.log("데이터 select에 넣기 완료");
         })
         .catch((error) => {
             console.error("에러 발생:", error);
@@ -46,29 +47,32 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 
 var button = document.getElementById('btn');
-if(button){
-button.addEventListener("click", () => {
-    const params = new URLSearchParams({
-        level1: getValue('HTMLLevel1'),
-        level2: getValue('HTMLLevel2'),
-        level3: getValue('HTMLLevel3')
+if (button) {
+    button.addEventListener("click", () => {
+        const params = new URLSearchParams({
+            level1: getValue('HTMLLevel1'),
+            level2: getValue('HTMLLevel2'),
+            level3: getValue('HTMLLevel3')
+        });
+        const queryString = new URLSearchParams(params).toString();
+        console.log("전송된 쿼리" + queryString);
+        fetch(`http://localhost:8000/result?${queryString}`)
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then((data) => {
+                console.log("결과 데이터 받기 완료"+data);
+            }) // 데이터 html에 띄워주기
+            .catch((error) => {
+                console.error("에러 발생:", error);
+            });
     });
-    const queryString = new URLSearchParams(params).toString();
-    console.log("전송된 쿼리" + queryString);
-    fetch(`http://localhost:8000/result?${queryString}`)
-    .then((response) => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-    })
-    .then(data => console.log("결과 데이터 받기 완료"))//데이터 html에 띄워주기
-    .catch((error) => {
-        console.error("에러 발생:", error);
-    });
-});
 }
-function getValue(level){
+
+function getValue(level) {
     const selected = document.getElementById(level);
     return selected.options[selected.selectedIndex].value;
 }
