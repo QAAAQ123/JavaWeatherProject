@@ -1,8 +1,11 @@
 package src;
 
+import src.server.CoordinateToRegionMapper;
 import src.server.Server;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 /*
 1. 서버 만들기
@@ -21,13 +24,10 @@ public class WeatherProject {
         Server Server = new Server();
         try{
             Server.run();
-        }catch(IOException e){
+        }catch(IOException e) {
             e.printStackTrace();
+
         }
-//        CoordinateToRegionMapper t = new CoordinateToRegionMapper();
-        //t.readCSV();
-//        System.out.println(t.getRegionList());
-//        System.out.println(t.getCoordinateList());
 
     }
 }

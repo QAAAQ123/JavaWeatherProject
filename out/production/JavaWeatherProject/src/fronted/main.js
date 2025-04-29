@@ -46,14 +46,15 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 
 var button = document.getElementById('btn');
-
+if(button){
 button.addEventListener("click", () => {
     const params = new URLSearchParams({
         level1: getValue('HTMLLevel1'),
         level2: getValue('HTMLLevel2'),
-        level3: getValue('HTMLLevel3'),
+        level3: getValue('HTMLLevel3')
     });
     const queryString = new URLSearchParams(params).toString();
+    console.log("전송된 쿼리" + queryString);
     fetch(`http://localhost:8000/result?${queryString}`)
     .then((response) => {
         if (!response.ok) {
@@ -66,7 +67,7 @@ button.addEventListener("click", () => {
         console.error("에러 발생:", error);
     });
 });
-
+}
 function getValue(level){
     const selected = document.getElementById(level);
     return selected.options[selected.selectedIndex].value;
