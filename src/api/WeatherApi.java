@@ -13,17 +13,17 @@ public class WeatherApi {
     private String key;
     public URL requestToAPI(String date, String time, String nx, String ny) throws MalformedURLException { //전체 지역명 받아오기
         System.out.println("api가 받을 정보:"+date+"/"+time+"/"+nx+"/"+ny);
-        StringBuilder urlBuilder = new StringBuilder("http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst"); /*URL*/
+        StringBuilder urlBuilder = new StringBuilder("http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst"); /*URL*/
         urlBuilder.append("?" + "serviceKey" + "=" + readAPIKey()); /*Service Key*/
-        urlBuilder.append("&" + "service" + "=" + "1"); /*페이지번호*/
-        urlBuilder.append("&" + "numOfRows" + "=" + "100"); /*한 페이지 결과 수*/
+        urlBuilder.append("&" + "numOfRows" + "=" + "60"); /*한 페이지 결과 수*/
+        urlBuilder.append("&" + "pageNo" + "=" + "1"); /*페이지번호*/
         urlBuilder.append("&" + "dataType" + "=" + "JSON"); /*요청자료형식(XML/JSON) Default: XML*/
         urlBuilder.append("&" + "base_date" + "=" + date); /*‘21년 6월 28일 발표*/
         urlBuilder.append("&" + "base_time" + "=" + time); /*06시 발표(정시단위) */
         urlBuilder.append("&" + "nx" + "=" + nx); /*예보지점의 X 좌표값*/
         urlBuilder.append("&" + "ny" + "=" + ny); /*예보지점의 Y 좌표값*/
 
-        //System.out.println("Request URL: " + new URL(urlBuilder.toString())); // 디버그용 출력
+        System.out.println("요청 URL: " + new URL(urlBuilder.toString())); // 디버그용 출력
         return new URL(urlBuilder.toString());
     }
 

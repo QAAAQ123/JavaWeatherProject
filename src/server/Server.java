@@ -3,6 +3,7 @@ package src.server;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpServer;
 import src.api.WeatherApi;
+import src.api.WeatherInfoConverter;
 
 import java.io.*;
 import java.net.InetSocketAddress;
@@ -78,8 +79,8 @@ public class Server {
             System.out.println("request method:" + clienRequestHttpMethod + " Path:" + path + " Count:" + count++);
 
             //get region data from csv
-            CoordinateToRegionMapper coordinateToRegionMapper = new CoordinateToRegionMapper();
-            List<String> result = coordinateToRegionMapper.getRegionList();
+            ReadCSVData readCSVData = new ReadCSVData();
+            List<String> result = readCSVData.getRegionList();
 
             //jackson
             ObjectMapper objectMapper = new ObjectMapper();
@@ -114,7 +115,7 @@ public class Server {
             System.out.println("서버가 받은 지역명:" + Arrays.toString(regions));
 
             //지역명 -> 좌표 변환(지역명이 맞지 않으면 get response로 오류 전송)
-            CoordinateToRegionMapper t = new CoordinateToRegionMapper();
+            ReadCSVData t = new ReadCSVData();
 
             //지역명,2차원 배열 [[시,구,동],[시,구,동],....] -> 3행xn열
             String[][] allRegions = new String[t.getRegionList().size() / 3][3];
@@ -149,12 +150,20 @@ public class Server {
                 //data(yyyyMMdd),time(24단위,1시간 간격),nx,ny값(selectedIndex) 값 구하기
                 Date now = new Date();
                 SimpleDateFormat date = new SimpleDateFormat("yyyyMMdd");
-                SimpleDateFormat time = new SimpleDateFormat("HH00");
+                SimpleDateFormat time = new SimpleDateFormat("HHmm");
+                String APIFitTime = time.format(now).toString();
+                //분이 01-29이면 00분으로 하고 31-59이면 30분으로 맞춤
+                if(APIFitTime.matches(".*(0[1-9]|1[0-9]|2[0-9])$")){
+                    APIFitTime = APIFitTime.substring(0,2) + "00";
+                }else if(APIFitTime.matches(".*(3[1-9]|4[0-9]|5[0-9])$")){
+                    APIFitTime = APIFitTime.substring(0,2) + "30";
+                }
+                System.out.println("API에 맞게 조정된 시간:" + APIFitTime);
                 String responsedAPIJSON = weatherApi.responseFromAPI(
                         weatherApi.requestToAPI(
-                                date.format(now).toString(), time.format(now).toString(), allCoordinate[selectedIndex][0], allCoordinate[selectedIndex][1])
+                                date.format(now).toString(), APIFitTime, allCoordinate[selectedIndex][0], allCoordinate[selectedIndex][1])
                 );
-
+                WeatherInfoConverter weatherInfoConverter = new WeatherInfoConverter(responsedAPIJSON);
 
             } else if (!validRegion) {
                 System.out.println("동일한 지역명이 존재하지 않음");

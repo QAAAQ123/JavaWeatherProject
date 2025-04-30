@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class CoordinateToRegionMapper {
+public class ReadCSVData {
 
 
     public List<List<String>> readCSV() {
