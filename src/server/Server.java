@@ -160,11 +160,11 @@ public class Server {
                     APIFitTime = APIFitTime.substring(0,2) + "30";
                 }
                 System.out.println("API에 맞게 조정된 시간:" + APIFitTime);
-//                String responsedAPIJSON = weatherApi.responseFromAPI(
-//                        weatherApi.requestToAPI(
-//                                date.format(now).toString(), APIFitTime, allCoordinate[selectedIndex][0], allCoordinate[selectedIndex][1])
-//                );
-                //WeatherInfoConverter weatherInfoConverter = new WeatherInfoConverter(responsedAPIJSON);
+                String responsedAPIJSON = weatherApi.responseFromAPI(
+                        weatherApi.requestToAPI(
+                                date.format(now).toString(), APIFitTime, allCoordinate[selectedIndex][0], allCoordinate[selectedIndex][1])
+                );
+                WeatherInfoConverter weatherInfoConverter = new WeatherInfoConverter(responsedAPIJSON);
 
             } else if (!validRegion) {
                 System.out.println("동일한 지역명이 존재하지 않음");
