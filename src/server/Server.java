@@ -8,6 +8,7 @@ import src.function.WeatherInfoConverter;
 
 import java.io.*;
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -38,6 +39,11 @@ public class Server {
                 os.write(HTMLBytes);
             }
         }));
+
+        httpServer.createContext("/favicon.ico", exchange -> {
+            exchange.sendResponseHeaders(204, -1); // No Content
+            exchange.close();
+        });
 
         // /main.css 요청시
         httpServer.createContext("/main.css", (exchange -> {
@@ -154,10 +160,10 @@ public class Server {
                 SimpleDateFormat time = new SimpleDateFormat("HHmm");
                 String APIFitTime = time.format(now).toString();
                 //분이 01-29이면 00분으로 하고 31-59이면 30분으로 맞춤
-                if(APIFitTime.matches(".*(0[1-9]|1[0-9]|2[0-9])$")){
-                    APIFitTime = APIFitTime.substring(0,2) + "00";
-                }else if(APIFitTime.matches(".*(3[1-9]|4[0-9]|5[0-9])$")){
-                    APIFitTime = APIFitTime.substring(0,2) + "30";
+                if (APIFitTime.matches(".*(0[1-9]|1[0-9]|2[0-9])$")) {
+                    APIFitTime = APIFitTime.substring(0, 2) + "00";
+                } else if (APIFitTime.matches(".*(3[1-9]|4[0-9]|5[0-9])$")) {
+                    APIFitTime = APIFitTime.substring(0, 2) + "30";
                 }
                 System.out.println("API에 맞게 조정된 시간:" + APIFitTime);
                 String responsedAPIJSON = weatherApi.responseFromAPI(
@@ -165,7 +171,17 @@ public class Server {
                                 date.format(now).toString(), APIFitTime, allCoordinate[selectedIndex][0], allCoordinate[selectedIndex][1])
                 );
                 WeatherInfoConverter weatherInfoConverter = new WeatherInfoConverter(responsedAPIJSON);
+                ObjectMapper objectMapper = new ObjectMapper();
+                String resultJSON = objectMapper.writeValueAsString(weatherInfoConverter.getExtractedItems());
+                byte[] resultBytes = resultJSON.getBytes();
 
+                exchange.sendResponseHeaders(200, resultBytes.length);
+                exchange.getResponseHeaders().set("Content-Type", "application/json; charset=utf-8");
+
+                try (OutputStream os = exchange.getResponseBody()) {
+                    os.write(resultBytes);
+                }
+                System.out.println("전송된 데이터: " + new String(resultBytes, StandardCharsets.UTF_8));
             } else if (!validRegion) {
                 System.out.println("동일한 지역명이 존재하지 않음");
                 exchange.sendResponseHeaders(404, 0);
