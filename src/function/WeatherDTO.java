@@ -140,12 +140,12 @@ class Item {
     @JsonProperty("category")
     private String category;
 
-    public String getFsctDate() {
-        return fsctDate;
+    public String getFcstDate() {
+        return fcstDate;
     }
 
-    public void setFsctDate(String fsctDate) {
-        this.fsctDate = fsctDate;
+    public void setFcstDate(String fcstDate) {
+        this.fcstDate = fcstDate;
     }
 
     public String getBaseDate() {
@@ -172,20 +172,20 @@ class Item {
         this.ny = ny;
     }
 
-    public String getFsctValue() {
-        return fsctValue;
+    public String getFcstValue() {
+        return fcstValue;
     }
 
-    public void setFsctValue(String fsctValue) {
-        this.fsctValue = fsctValue;
+    public void setFcstValue(String fsctValue) {
+        this.fcstValue = fsctValue;
     }
 
-    public String getFsctTime() {
-        return fsctTime;
+    public String getFcstTime() {
+        return fcstTime;
     }
 
-    public void setFsctTime(String fsctTime) {
-        this.fsctTime = fsctTime;
+    public void setFcstTime(String fsctTime) {
+        this.fcstTime = fsctTime;
     }
 
     public String getCategory() {
@@ -205,11 +205,11 @@ class Item {
     }
 
     @JsonProperty("fcstDate")
-    private String fsctDate;
+    private String fcstDate;
     @JsonProperty("fcstTime")
-    private String fsctTime;
+    private String fcstTime;
     @JsonProperty("fcstValue")
-    private String fsctValue;
+    private String fcstValue;
     @JsonProperty("nx")
     private int nx;
     @JsonProperty("ny")

@@ -1,10 +1,9 @@
-const level1 = new Set();
-const level2 = new Set();
-const level3 = [];
-
-const isRequesting = { value: false };
-
+let level1 = new Set();
+let level2 = new Set();
+let level3 = new Array();
+let isRequesting = false;
 window.addEventListener("DOMContentLoaded", () => {
+
     fetch("http://localhost:8000/data")
         .then((response) => {
             if (!response.ok) {
@@ -41,59 +40,53 @@ window.addEventListener("DOMContentLoaded", () => {
                 option.textContent = item;
                 HTMLLevel3.appendChild(option);
             });
-
             console.log("데이터 select에 넣기 완료");
         })
         .catch((error) => {
             console.error("에러 발생:", error);
         });
-
-    const button = document.getElementById('btn');
-    if (button) {
-        // 중복 이벤트 방지를 위해 onclick 사용
-        button.onclick = handleClick;
-    }
 });
 
-function handleClick(e) {
-    e.preventDefault();
 
-    const button = e.currentTarget;
 
-    // 중복 클릭 방지
-    if (isRequesting.value) return;
-    isRequesting.value = true;
-    button.disabled = true;
+var button = document.getElementById('btn');
+if (button) {
+    button.addEventListener("click", (e) => {
+        e.preventDefault();
 
-    const params = new URLSearchParams({
-        level1: getValue('HTMLLevel1'),
-        level2: getValue('HTMLLevel2'),
-        level3: getValue('HTMLLevel3')
-    });
-    const queryString = params.toString();
-    console.log("전송된 쿼리 " + queryString);
+        // 중복 클릭 방지
+        if (isRequesting) return;
+        isRequesting = true;
+        button.disabled = true;
 
-    fetch(`http://localhost:8000/result?${queryString}`)
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then((data) => {
-            console.log("결과 데이터 받기 완료", data);
-            // TODO: 데이터 처리 로직 추가 가능
-        })
-        .catch((error) => {
-            console.error("에러 발생:", error);
-        })
-        .finally(() => {
-            isRequesting.value = false;
-            button.disabled = false;
+        const params = new URLSearchParams({
+            level1: getValue('HTMLLevel1'),
+            level2: getValue('HTMLLevel2'),
+            level3: getValue('HTMLLevel3')
         });
-}
+        const queryString = params.toString();
+        console.log("전송된 쿼리 " + queryString);
 
-function getValue(id) {
-    const select = document.getElementById(id);
-    return select.options[select.selectedIndex]?.value || '';
+        fetch(`http://localhost:8000/result?${queryString}`)
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then((data) => {
+                console.log("결과 데이터 받기 완료", data);
+            })
+            .catch((error) => {
+                console.error("에러 발생:", error);
+            })
+            .finally(() => {
+                isRequesting = false;
+                button.disabled = false;
+            });
+    });
+}
+function getValue(level) {
+    const selected = document.getElementById(level);
+    return selected.options[selected.selectedIndex].value;
 }

@@ -10,109 +10,136 @@ import java.util.List;
 import java.util.Map;
 
 public class WeatherInfoConverter {
-    private List<Map<String,String>> extractedItems;
-    public WeatherInfoConverter(String responsedAPIJSON){
+    private List<Map<String, String>> extractedItems;
+    public WeatherInfoConverter(String responsedAPIJSON) {
         ObjectMapper objectMapper = new ObjectMapper();
-        try{
-           WeatherDTO deserializedDto = objectMapper.readValue(responsedAPIJSON,WeatherDTO.class);
-           extractedItems = new ArrayList<>();//basetime,category,fcsttime,fcstvalue만 추출
-           List<Item> items = deserializedDto.getResponse().getBody().getItems().getItem();
-           for(Item i:items){
-               Map<String,String> temp = new HashMap<>();
-               temp.put("baseTime", changeTimeFormat(i.getBaseTime()));
-               temp.put("category", categoryCodeToReal(i.getCategory()));
-               temp.put("fcstTime", changeTimeFormat(i.getFsctTime()));
-               temp.put("fcstValue", fcstValueCodeToReal(i.getFsctValue(),i.getCategory()));
-               extractedItems.add(temp);
-           }
-        }catch(JsonProcessingException e){
+        try {
+            WeatherDTO deserializedDto = objectMapper.readValue(responsedAPIJSON, WeatherDTO.class);
+            System.out.println("가공전 데이터: " + objectMapper.writeValueAsString(deserializedDto));
+            extractedItems = new ArrayList<>();//basetime,category,fcsttime,fcstvalue만 추출
+            List<Item> items = deserializedDto.getResponse().getBody().getItems().getItem();
+            for (Item i : items) {
+                Map<String, String> temp = new HashMap<>();
+                Map<String,String> test2 = new HashMap<>();
+                temp.put("fcstTime", changeTimeFormat(i.getFcstTime()));
+                temp.put("fcstValue", fcstValueCodeToReal(i.getFcstValue(), i.getCategory()));
+                temp.put("category", categoryCodeToReal(i.getCategory()));
+                temp.put("baseTime", changeTimeFormat(i.getBaseTime()));
+                extractedItems.add(temp);
+            }
+        } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
-
-
     }
-    private String categoryCodeToReal(String category){
+
+
+    private String changeTimeFormat(String time) {
+        try {
+            SimpleDateFormat inputFormat = new SimpleDateFormat("HHmm");
+            SimpleDateFormat outputFormat;
+
+            // 입력값을 Date 객체로 변환
+            java.util.Date date = inputFormat.parse(time);
+
+            if (time.endsWith("00")) {
+                outputFormat = new SimpleDateFormat("a hh시", java.util.Locale.KOREAN);
+            } else {
+                outputFormat = new SimpleDateFormat("a hh시 mm분", java.util.Locale.KOREAN);
+            }
+            return outputFormat.format(date);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "시간 변환 오류";
+        }
+    }
+
+    public List<Map<String, String>> getExtractedItems() {
+        return extractedItems;
+    }
+
+    private String fcstValueCodeToReal(String fcstValue, String category) {
+
         switch(category){
             case "T1H":
-                return "기온";
+                fcstValue = fcstValue + "℃";
+                break;
             case "RN1":
-                return "1시간 강수량";
+                fcstValue = fcstValue + "mm";
+                break;
+            case "SKY":
+                int code = Integer.parseInt(fcstValue);
+                if(code == 1) fcstValue = "맑음";
+                else if(code == 3) fcstValue = "구름 많음";
+                else if(code == 4) fcstValue = "흐림";
+                break;
             case "UUU":
-                return "동서바람성분";
+                fcstValue = fcstValue + "m/s";
+                break;
             case "VVV":
-                return "남북바람성분";
+                fcstValue = fcstValue + "m/s";
+                break;
             case "REH":
-                return "습도";
+                fcstValue = fcstValue + "%";
+                break;
             case "PTY":
-                return "강수형태";
+                code = Integer.parseInt(fcstValue);
+                if(code == 0) fcstValue = "없음";
+                else if(code == 1) fcstValue = "비";
+                else if(code == 2) fcstValue = "비/눈";
+                else if(code == 5) fcstValue = "빗방울";
+                else if(code == 6) fcstValue = "빗방울눈날림";
+                else if(code == 7) fcstValue = "눈날림";
+                break;
+            case "LGT":
+                fcstValue = fcstValue + "kA";
+                break;
             case "VEC":
-                return "풍향";
+                fcstValue = fcstValue + "deg";
+                break;
             case "WSD":
-                return "풍속";
+                fcstValue = fcstValue + "m/s";
+                break;
+            default:
+                fcstValue = "데이터 변환 오류";
         }
-        return "category error";
+        return fcstValue;
     }
-    private String fcstValueCodeToReal(String fcstValue,String category) {
-        int intValue = Integer.parseInt(fcstValue);
-        switch (category) {
+
+    private String categoryCodeToReal(String category) {
+        switch(category){
             case "T1H":
-                return fcstValue + "°C";
+                category = "기온";
+                break;
             case "RN1":
-                return fcstValue + "mm";
+                category = "1시간 강수량";
+                break;
+            case "SKY":
+                category = "하늘 상태";
+                break;
             case "UUU":
-                if (intValue > 0)
-                    return "동풍 " + Math.abs(intValue) + "m/s";
-                else if (intValue < 0)
-                    return "서풍 " + Math.abs(intValue) + "m/s";
-                else
-                    return intValue + "m/s";
+                category = "동서바람";
+                break;
             case "VVV":
-                if (intValue > 0)
-                    return Math.abs(intValue) + "m/s";
-                else if (intValue < 0)
-                    return Math.abs(intValue) + "m/s";
-                else
-                    return "남북 " + intValue + "m/s";
+                category = "남북바람";
+                break;
             case "REH":
-                return fcstValue + "%";
+                category = "습도";
+                break;
             case "PTY":
-                return convertPYTCode(fcstValue);
+                category = "강수형태";
+                break;
+            case "LGT":
+                category = "낙뢰";
+                break;
             case "VEC":
-                return fcstValue + "deg";
+                category = "풍향";
+                break;
             case "WSD":
-                return fcstValue + "m/s";
+                category = "풍속";
+                break;
+            default:
+                category = "카테고리 에러";
         }
-        return "값 변환 오류";
-    }
-    private String changeTimeFormat(String time){
-        if(!time.matches(".*00$")){
-            SimpleDateFormat oclock = new SimpleDateFormat("hh시 a");
-            oclock.format(time);
-            return oclock.toString();
-        }else{
-            SimpleDateFormat formatedTime = new SimpleDateFormat("hh시 mm분 a");
-            formatedTime.format(time);
-            return formatedTime.toString();
-        }
-    }
-
-    private String convertPYTCode(String codeValue){
-        switch(codeValue){
-            case "0":
-                return "없음";
-            case "1":
-                return "비";
-            case "2":
-                return "비/눈";
-            case "3":
-                return "눈";
-            case "4":
-                return "소나기";
-        }
-        return "PYT 변환 에러";
-    }
-
-    public List<Map<String,String>> getExtractedItems(){
-        return extractedItems;
+        return category;
     }
 }

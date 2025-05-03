@@ -45,9 +45,9 @@ window.addEventListener("DOMContentLoaded", () => {
         .catch((error) => {
             console.error("에러 발생:", error);
         });
-
-
 });
+
+
 
 var button = document.getElementById('btn');
 if (button) {
