@@ -20,7 +20,6 @@ public class WeatherInfoConverter {
             List<Item> items = deserializedDto.getResponse().getBody().getItems().getItem();
             for (Item i : items) {
                 Map<String, String> temp = new HashMap<>();
-                Map<String,String> test2 = new HashMap<>();
                 temp.put("fcstTime", changeTimeFormat(i.getFcstTime()));
                 temp.put("fcstValue", fcstValueCodeToReal(i.getFcstValue(), i.getCategory()));
                 temp.put("category", categoryCodeToReal(i.getCategory()));

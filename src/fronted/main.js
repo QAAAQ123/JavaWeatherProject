@@ -3,7 +3,6 @@ let level2 = new Set();
 let level3 = new Array();
 let isRequesting = false;
 window.addEventListener("DOMContentLoaded", () => {
-
     fetch("http://localhost:8000/data")
         .then((response) => {
             if (!response.ok) {
@@ -59,6 +58,9 @@ if (button) {
         isRequesting = true;
         button.disabled = true;
 
+        const weatherInfo = document.getElementById('weather-info');
+        weatherInfo.innerHTML = "로딩 중...";
+
         const params = new URLSearchParams({
             level1: getValue('HTMLLevel1'),
             level2: getValue('HTMLLevel2'),
@@ -69,13 +71,38 @@ if (button) {
 
         fetch(`http://localhost:8000/result?${queryString}`)
             .then((response) => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    return response.text().then(text => { throw new Error(text); });
                 }
-                return response.json();
             })
             .then((data) => {
                 console.log("결과 데이터 받기 완료", data);
+                const level1 = getValue('HTMLLevel1');
+                const level2 = getValue('HTMLLevel2');
+                const level3 = getValue('HTMLLevel3');
+                const region = `${level1} ${level2} ${level3}`.trim();
+
+                const weatherByTime = {};
+                data.forEach(item => {
+                    if(!weatherByTime[item.fcstTime]){
+                        weatherByTime[item.fcstTime] = [];
+                    }
+                    weatherByTime[item.fcstTime].push(`${item.category}: ${item.fcstValue}`);
+
+                });
+                let weatherText = "";
+                    for (const [time, infos] of Object.entries(weatherByTime)) {
+                        weatherText += `${time}:<br>`;
+                        infos.forEach(info => {
+                        weatherText += ` - ${info}<br>`;
+                    });
+                }
+
+                // p 태그 업데이트
+                weatherInfo.innerHTML = `선택한 지역: ${region}<br>날씨 정보:<br>${weatherText}`;
+
             })
             .catch((error) => {
                 console.error("에러 발생:", error);
